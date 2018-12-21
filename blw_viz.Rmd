@@ -202,7 +202,7 @@ blw_public_viz %>%
   ggplot(aes(wave, statements, fill = perc)) +
   geom_tile(alpha = 0.7) +
   ggpubr::theme_pubclean() +
-  viridis::scale_fill_viridis(direction = -1, begin = 0.25, option = "B") +
+  viridis::scale_fill_viridis(direction = -1, begin = 0.35, option = "B") +
   geom_text(aes(label = round(perc * 100))) +
   scale_x_continuous(breaks = 5:7, labels = survey_dates_3) +
   labs(y = "", x = "", title = "Ratings of U.S. democratic (non-)performance - Public perceptions",
@@ -221,7 +221,7 @@ blw_public_viz %>%
     axis.title = element_text(size = 12, face = "bold"), 
     panel.spacing = unit(1, "lines"))
 
-ggsave_it(heatmap3, width = 10, height = 7)
+ggsave_it(heatmap3, width = 8.5, height = 7)
 
 
 ```
