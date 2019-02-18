@@ -3,7 +3,18 @@ Bright Line Watch data
 Fabio Votta
 21.12.2018
 
-## Packages
+Is American democracy under threat? [Bright Line
+Watch](http://brightlinewatch.org) regularly asks political scientists
+and the public questions about democratic performance.
+
+In their visualizations and reports, Bright Line Watch mostly focuses on
+measures of democratic performance to the degree that the [US fulfills
+these standards](http://brightlinewatch.org/wave7/).
+
+In this little exercise, I want to focus on the measures that the US
+does *NOT* perform well on. Here I visualize the results.
+
+## Load neccesary Packages
 
 ``` r
 # Install these packages if you don't have them yet
@@ -13,7 +24,7 @@ Fabio Votta
 pacman::p_load(tidyverse, haven, tidytemplate)
 ```
 
-## Load Data
+## Download Data
 
 Data downloaded from [Bright Line Watch
 homepage](http://brightlinewatch.org/surveys/).
@@ -40,11 +51,13 @@ as.character(unzip("data/blw_data7", list = TRUE)$Name)
 
 ``` r
 blw_expert <- read_dta(unzip("data/blw_data7", files = "BLW_Expert_Waves1234567.dta"))
+
+# blw_expert %>% filter(wave == 6)
 ```
 
 ## Expert Survey
 
-First some data preparation:
+Before I can visualize the survey, I clean and prepare the data:
 
 ``` r
 n_experts <- blw_expert %>% 
@@ -84,7 +97,7 @@ blw_expert_viz <- blw_expert %>%
     key == "perf_opinions" ~ "Opinions heard on policy",
     key == "perf_participation" ~ "Voter participation",
     key == "perf_patriotism" ~ "Patriotism not questioned",
-    key == "perf_private_gain" ~ "Private gains from office",
+    key == "perf_private_gain" ~ "No private gains from office",
     key == "perf_private_violence" ~ "No political violence",
     key == "perf_protest" ~ "Protest rights",
     key == "perf_votes_impact" ~ "Votes have equal impact",
@@ -98,8 +111,14 @@ blw_expert_viz <- blw_expert %>%
     ## Warning: attributes are not identical across measure variables;
     ## they will be dropped
 
-Visualizing expert survey
-results:
+The data ranges from February 2017 to October 2018. For the purpose of
+this visualization, I took out 27 statements of democratic performance
+and show the percentage of experts that do not think the U.S. meets the
+necessary standard (a full list of statements can be found in the
+appendix).
+
+Visualizing expert survey results
+now:
 
 ``` r
 survey_dates <- c("Feb/17", "May/17", "Sep/17", "Jan/18", "Apr/18", "Jul/18", "Oct/18")
@@ -136,27 +155,36 @@ blw_expert_viz %>%
 ggsave_it(heatmap, width = 8.7, height = 7)
 ```
 
-Is American democracy under threat? [Bright Line
-Watch](http://brightlinewatch.org) regularly asks political scientists
-and the public questions about democratic performance. Here I visualize
-some results. Let’s start with expert perceptions.
+At a first glance, there seems to be widespread agreement on the topic
+of gerrymandering. Most experts would say that U.S. democracy fails at
+meeting the standard of fair electoral districts (69% in Oct. 2018).
+Other issues that many expert respondents pointed out were low voter
+turnout, equal impact of votes and a common understanding of the facts
+(49-50% in Oct. 2018).
 
-The data ranges from February 2017 to October 2018. For the purpose of
-this visualization, I took out 27 statements of democratic performance
-and show the percentage of experts that do not think the U.S. meets the
-necessary standard.
+If we consider the time dimension, we can observe that many ratings stay
+rather consistent over time.
 
-There is widespread agreement on the topic of gerrymandering. Most
-experts would say that U.S. democracy fails at meeting the standard of
-fair electoral districts (\~63 - 71%).
+One change that stands out is from April to July 2018 on the question
+whether elections are free from foreign influence: a jump from 25 to 44%
+of experts who said that the U.S. does not meet this standard. This
+stark increase might be explained by President Trump’s Helsinki summit
+which happened during the survey was in the field. At the summit, [Trump
+made
+statements](https://www.washingtonpost.com/politics/americans-give-trump-negative-marks-for-helsinki-performance/2018/07/22/832ec2be-8d19-11e8-a345-a1bf7847b375_story.html)
+that suggested he believed Putin over the assessment of the U.S.
+intelligence service when it comes to Russian interference in the U.S.
+election.
 
-Other issues that many expert respondents pointed out were the fact of
-low voter turnout, equal impact of votes and a common understanding of
-the facts.
+Another interesting jump concerncs the statement that the legislature
+can limit executive power if need be. A jump from 12% of experts in
+April to 22% in July and October 2018 say that the U.S. does not meet
+this standard.
 
 ## Public Survey
 
-Data
+Next, I complete the same procedure for the public survey. But first,
+some data
 wrangling:
 
 ``` r
@@ -210,7 +238,7 @@ blw_public_viz <- blw_public %>%
     key == "perf_opinions" ~ "Opinions heard on policy",
     key == "perf_participation" ~ "Voter participation",
     key == "perf_patriotism" ~ "Patriotism not questioned",
-    key == "perf_private_gain" ~ "Private gains from office",
+    key == "perf_private_gain" ~ "No private gains from office",
     key == "perf_private_violence" ~ "No political violence",
     key == "perf_protest" ~ "Protest rights",
     key == "perf_votes_impact" ~ "Votes have equal impact",
@@ -224,14 +252,14 @@ blw_public_viz <- blw_public %>%
     ## Warning: attributes are not identical across measure variables;
     ## they will be dropped
 
-Visualizing public survey results:
+Now let’s investigate how the public evaluates American democracy:
 
 ``` r
 blw_public_viz %>%  
   ggplot(aes(wave, statements, fill = perc)) +
   geom_tile(alpha = 0.7) +
   ggpubr::theme_pubclean() +
-  viridis::scale_fill_viridis(direction = -1, begin = 0.25, option = "B") +
+  viridis::scale_fill_viridis(direction = -1, begin = 0.35, option = "B") +
   geom_text(aes(label = round(perc * 100))) +
   scale_x_continuous(breaks = 5:7, labels = survey_dates_3) +
   labs(y = "", x = "", title = "Ratings of U.S. democratic (non-)performance - Public perceptions",
@@ -254,14 +282,19 @@ blw_public_viz %>%
 ![](blw_viz_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
-ggsave_it(heatmap3, width = 10, height = 7)
+ggsave_it(heatmap3, width = 8.5, height = 7)
 ```
 
-Now let’s investigate how the public evaluates American democracy. More
-than half of respondents said that politicians use their office for
-private gain and that political opponents are smeared with accusations
-of lack of
-patriotism.
+Evaluations of U.S. democratic non-performance by the public remain
+relatively stable over the three observation points in 2018.
+
+More than half of respondents in the public sample said that the U.S.
+fails to meet the standard of government officials not misusing public
+office for private gain (51% in October 2018). A majority of respondents
+in the nationally representative sample also believe that political
+opponents are smeared with accusations of disloyalty and a lack of
+patriotism (53% in
+October).
 
 ## Experts + Public
 
@@ -307,56 +340,7 @@ ggsave_it(lineplot, width = 16, height = 7)
 
 When we directly compare public and expert evaluations, we can see that
 the public seems to be somewhat more or at least as skeptical than
-experts except for questions on low voter turnout, equal impact of votes
-and biased electoral districts.
-
-``` r
-tibble(
-
-vars_n = blw_expert %>% 
- filter(finished == 1) %>% 
- mutate_all(is.na) %>% 
- colSums() %>% 
- names(),
-
-missings = blw_expert %>% 
- filter(finished == 1) %>% 
- mutate_all(is.na) %>% 
- colSums() %>% 
- as.vector() 
-
-) %>% 
-  arrange(missings)
-
-# blw_expert_viz %>% 
-#   filter(standard == "Missing Standard") %>% 
-#   ggplot(aes(key, perc, fill = as.factor(wave))) +
-#   geom_bar(stat = "identity", position = position_dodge())
-# 
-# 
-# 
-# blw_expert_viz %>% 
-#   filter(standard == "Missing Standard") %>% 
-#   ggplot(aes(wave, perc)) +
-#   geom_line(aes(group = key)) +
-#   geom_smooth()
-# 
-# 
-# all_sevens <- blw_expert_viz %>% 
-#   filter(standard == "Missing Standard") %>% 
-#   count(key) %>% 
-#   filter(nn == 7) %>% 
-#   .$key
-# 
-# blw_expert_viz %>% 
-#   filter(key %in% all_sevens) %>% 
-#   filter(standard == "Missing Standard") %>% 
-#   filter(wave == 7) %>% 
-#   arrange(wave, desc(perc)) %>% 
-#   # group_by(wave) %>% 
-#   # top_n(5) %>% 
-#   mutate(key = forcats::fct_reorder(key, perc)) %>% 
-#   ggplot(aes(key, perc)) +
-#   geom_col() +
-#   coord_flip()
-```
+experts except for questions on adequate voter turnout, equal impact of
+votes and fair electoral districts. On such issues, experts are more
+likely to say that the U.S. does not meet this standard than the general
+public.
